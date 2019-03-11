@@ -461,11 +461,11 @@ class Manager implements ManagerInterface
      * nodes in the cluster. We want to learn about them and save them, so that
      * we can switch to them later, if needed.
      *
-     * @param Node $node The current node
+     * @param Node $originNode The current node
      */
-    private function revealClusterFromHello(Node $node)
+    private function revealClusterFromHello(Node $originNode)
     {
-        $hello = $node->getHello();
+        $hello = $originNode->getHello();
         $revealedNodes = [];
 
         foreach ($hello[HelloResponse::NODES] as $node) {
@@ -509,7 +509,7 @@ class Manager implements ManagerInterface
         }
 
         $host = $node[HelloResponse::NODE_HOST];
-        $port = $node[HelloResponse::NODE_PORT];
+        $port = (int)$node[HelloResponse::NODE_PORT];
         $credentials = new Credentials($host, $port);
 
         $address = $credentials->getAddress();
