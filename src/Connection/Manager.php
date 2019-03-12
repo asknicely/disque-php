@@ -470,7 +470,7 @@ class Manager implements ManagerInterface
 
         foreach ($hello[HelloResponse::NODES] as $node) {
             $id = $node[HelloResponse::NODE_ID];
-            $revealedNode = $this->revealNodeFromHello($id, $node);
+            $revealedNode = $this->revealNodeFromHello($id, $node, $originNode->getCredentials());
 
             // Update or set the node's priority as determined by Disque
             $priority = $node[HelloResponse::NODE_PRIORITY];
@@ -485,12 +485,13 @@ class Manager implements ManagerInterface
     /**
      * Reveal a single node from a HELLO response, or use an existing node
      *
-     * @param string $nodeId The node ID
-     * @param array  $node   Node information as returned by the HELLO command
+     * @param string      $nodeId            The node ID
+     * @param array       $node              Node information as returned by the HELLO command
+     * @param Credentials $originCredentials Credentials of the current node
      *
      * @return Node $node A node in the current cluster
      */
-    private function revealNodeFromHello($nodeId, array $node)
+    private function revealNodeFromHello($nodeId, array $node, Credentials $originCredentials)
     {
         /**
          * Add the node prefix to the pool. We create the prefix manually
@@ -510,7 +511,7 @@ class Manager implements ManagerInterface
 
         $host = $node[HelloResponse::NODE_HOST];
         $port = (int)$node[HelloResponse::NODE_PORT];
-        $credentials = new Credentials($host, $port);
+        $credentials = new Credentials($host, $port, null, $originCredentials->getConnectionTimeout(), $originCredentials->getResponseTimeout());
 
         $address = $credentials->getAddress();
         // If there are user-supplied credentials for this node, use them.
